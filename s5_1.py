@@ -159,3 +159,41 @@ print(df_clean['winner'].value_counts(normalize=True) * 100)
 print("Q11: What is the most common way games end (victory_status)?")
 print(df_clean['victory_status'].value_counts())
 # print(df_clean['victory_status'].unique())
+
+# Q12: Which victory_status has the highest average number of turns?
+print("Q12: Which victory_status has the highest average number of turns?")
+print(df_clean.groupby('victory_status')['turns'].count().sort_values(ascending=False))
+print(df_clean.groupby('victory_status')['turns'].count().sort_values(ascending=False).idxmax())
+print(df_clean.groupby('victory_status')['turns'].count().sort_values(ascending=False).iloc[0])
+
+# Q13: Which opening family is most popular when Black wins? Same for White?
+print("Q13: Which opening family is most popular when Black wins? Same for White?")
+# print("Most popular opening family when Black wins:")
+# print((df_clean[df_clean["winner"] == "Black"].groupby("opening_family")["winner"].count().sort_values(ascending=False)).head(1))
+# print("Most popular opening family when White wins:")
+# print((df_clean[df_clean["winner"] == "White"].groupby("opening_family")["winner"].count().sort_values(ascending=False)).head(1))
+
+print("Most popular opening family when Black wins:")
+print(df_clean[df_clean["winner"] == "Black"]["opening_family"].value_counts().head(1))
+print("Most popular opening family when White wins:")
+print(df_clean[df_clean["winner"] == "White"]["opening_family"].value_counts().head(1))
+
+# Q14: Do rated games have a different White win rate than unrated games?
+print("Q14: Do rated games have a different White win rate than unrated games?")
+rated_white_win_rate = df_clean[df_clean["rated"] == True]["winner"].value_counts(normalize=True).get("White", 0) * 100
+unrated_white_win_rate = df_clean[df_clean["rated"] == False]["winner"].value_counts(normalize=True).get("White", 0) * 100
+print(f"White win rate in rated games: {round(rated_white_win_rate, 2)}%")
+print(f"White win rate in unrated games: {round(unrated_white_win_rate,2)}%")
+
+# rated_games = df_clean[df_clean["rated"] == True]
+# unrated_games = df_clean[df_clean["rated"] == False]
+
+# rated_white_rate = (rated_games["winner"] == "White").sum() / len(rated_games) * 100
+# unrated_white_rate = (unrated_games["winner"] == "White").sum() / len(unrated_games) * 100
+
+# Q15: Classify each game as Short/Medium/Long using apply(). What % is each?
+print("Q15: Classify each game as Short/Medium/Long using apply(). What % is each?")
+
+df_clean["length_classified"]= df_clean["turns"].apply\
+    (lambda x: "short" if x < 20 else ("medium" if x <= 60 else "long"))
+print(df_clean["length_classified"].value_counts(normalize=True) * 100)
