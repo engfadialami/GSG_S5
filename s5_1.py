@@ -104,6 +104,10 @@ print(df_clean.shape)
 print(df_clean.columns.tolist())
 print(df_clean["opening_family"].head(10))
 
+# Q9: How many unique opening families exist?
+print("Q9: How many unique opening families exist?")
+print("Unique opening families:", df_clean['opening_family'].nunique())
+
 # 2d: Drop high-null column
 df_clean = df_clean.drop(columns=["opening_response"])
 print(df_clean.shape)
@@ -113,6 +117,8 @@ print(df_clean.columns.tolist())
 df_clean["is_suspicious"] = df_clean["turns"] < 5
 print(df_clean.shape)
 print(df_clean.columns.tolist())
+
+print("Q8: How many games are flagged as suspicious (< 5 turns)?")
 print("Suspicious games:", df_clean["is_suspicious"].sum())
 
 df_fadi = df_clean[df_clean["is_suspicious"] == False]
@@ -123,6 +129,24 @@ assert df_clean["rating_diff"].notna().all()
 assert df_clean.duplicated().sum() == 0
 
 print("Unique opening families:", df_clean['opening_family'].nunique())
+# print("Unique opening families:", df_clean['opening_family'].unique())
+print("Q7: After adding rating_diff, what percentage of games did the higher-rated player win?")
+df_clean["higher_rated"]= df_clean["rating_diff"].apply\
+    (lambda x: "White" if x > 0 else ("Black" if x < 0 else "Equal"))
+# higher_rated_won = (
+#     ((df_clean['rating_diff'] > 0) & (df_clean['winner'] == 'White'))
+#     |
+#     ((df_clean['rating_diff'] < 0) & (df_clean['winner'] == 'Black'))
+# )
+higher_rated_won = (
+    ((df_clean['higher_rated'] == "White") & (df_clean['winner'] == 'White'))
+    |
+    ((df_clean['higher_rated'] == "Black") & (df_clean['winner'] == 'Black'))
+)
+print(f"Higher rated won: {round(len(df_clean[higher_rated_won]) / len(df_clean) * 100, 2)}%")
+
+print("Win percentages:")
+print(df_clean['winner'].value_counts(normalize=True) * 100)
 
 # # Show result
 # print(df_clean.head())
@@ -130,3 +154,8 @@ print("Unique opening families:", df_clean['opening_family'].nunique())
 # print(df_clean.columns.tolist())
 
 # print("Suspicious games:", df_clean["is_suspicious"].sum())
+
+# Q11: What is the most common way games end (victory_status)?
+print("Q11: What is the most common way games end (victory_status)?")
+print(df_clean['victory_status'].value_counts())
+# print(df_clean['victory_status'].unique())
