@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
 # Google Drive share links
 chess_link = "https://drive.google.com/file/d/1eR3NZtwIC6ECN3vhtrynqmx8okG0twA7/view?usp=sharing"
@@ -197,3 +198,65 @@ print("Q15: Classify each game as Short/Medium/Long using apply(). What % is eac
 df_clean["length_classified"]= df_clean["turns"].apply\
     (lambda x: "short" if x < 20 else ("medium" if x <= 60 else "long"))
 print(df_clean["length_classified"].value_counts(normalize=True) * 100)
+
+# Q16: Q16 — How many white players in the chess data have no registry entry?
+print("Q16: How many white players in the chess data have no registry entry?")
+merged = pd.merge(
+    df_clean[["game_id", "white_id", "white_rating", "winner"]],
+    df_players.rename(columns={"username": "white_id"}),
+    on="white_id",
+    how="left"
+)
+
+
+print(merged["country"].value_counts(dropna=False))
+
+country_map = {
+    "RUS": "Russia",
+    "russian federation": "Russia", "US": "United States",
+    "USA": "United States", "united states": "United States",
+    "UA": "Ukraine", "GB": "United Kingdom", "UK": "United Kingdom",
+    "united kingdom": "United Kingdom", "FR": "France",
+    "france": "France", "PL": "Poland", "poland": "Poland",
+    "BRA": "Brazil", "brazil": "Brazil", "DE": "Germany",
+    "Deutschland": "Germany", "IN": "India","ES":"Spain"
+}
+merged['country'] = merged['country'].map(country_map).fillna(merged['country'])
+# Q17: How many country name inconsistencies exist (e.g.'US'/'USA'/'United States')?
+print("Q17: How many country name inconsistencies exist (e.g.'US'/'USA'/'United States')?")
+print(merged['country'].unique())
+print(merged['country'].nunique())
+
+print("Number of white players with no registry entry:", merged["country"].isna().sum())
+missing_players = merged[merged["country"].isna()]["white_id"].nunique()
+
+print("Number of white players with no registry entry:", missing_players)
+
+# Q18 — Plot: bar chart of win counts by color. Save to output/wins_by_color.png
+print("Q18: Plot: bar chart of win counts by color. Save to output/wins_by_color.png")
+print(merged["winner"].value_counts())
+plt.figure()  # Clear the figure for the next plot
+df_clean["winner"].value_counts().plot(kind="bar")
+plt.title("Wins by Color")
+plt.xlabel("Winner")
+plt.ylabel("Count")
+os.makedirs("output", exist_ok=True)
+plt.savefig("output/wins_by_color.png")
+
+plt.show(block=False)
+
+# Q19: Plot: scatter of white_rating vs turns for rated games. What do you observe?
+print("Q19: Plot: scatter of white_rating vs turns for rated games. What do you observe?")
+rated_games = df_clean[df_clean["rated"] == True]
+# plt.figure()  # Clear the figure for the next plot
+rated_games.plot(
+    kind="scatter",
+    x="white_rating",
+    y="turns",
+    alpha=0.3,
+    title="White Rating vs Turns for Rated Games"
+)
+plt.xlabel("White Rating")
+plt.ylabel("Turns")
+plt.savefig("output/white_rating_vs_turns.png")
+plt.show()
